@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arboreal — Sales Training Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--o:#E8612D;--od:#C94E1F;--dk:#1E2328;--cr:#FAF8F5;--mid:#6B7580;--bd:#E5E0DC;--g:#2D8F5E;--gb:#E8F0E4;--gd:#D0DFC8;--w:#fff;--tx:#3A4149;--rb:#FDECEC}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cr);color:var(--dk);min-height:100vh}
+.hdr{background:var(--dk);border-top:4px solid var(--o);padding:36px 24px 32px;text-align:center}
+.hdr .badge{font-size:11px;font-weight:700;letter-spacing:3px;color:var(--o);text-transform:uppercase;margin-bottom:14px}
+.hdr h1{font-family:'DM Serif Display',serif;font-size:clamp(26px,5vw,36px);color:var(--w);font-weight:400;margin-bottom:8px}
+.hdr h1 span{color:var(--o)}
+.hdr p{color:#A8B0B8;font-size:14px;max-width:500px;margin:0 auto;line-height:1.6}
+.wrap{max-width:660px;margin:0 auto;padding:28px 20px}
+.scenarios{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sc{background:var(--w);border:2px solid var(--bd);border-radius:12px;padding:20px 16px;cursor:pointer;transition:all .2s;text-align:center}
+.sc:hover{border-color:var(--o);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.sc .icon{font-size:26px;margin-bottom:8px}
+.sc .ttl{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:3px}
+.sc .ph{font-size:10px;color:var(--o);font-weight:600;margin-bottom:6px}
+.sc .ds{font-size:11px;color:var(--mid);line-height:1.5}
+.info{margin-top:24px;background:var(--w);border:1px solid var(--bd);border-radius:10px;padding:16px;font-size:13px;color:var(--mid);line-height:1.6}
+.info b{color:var(--o)}
+.chat-wrap{display:flex;flex-direction:column;height:100vh}
+.chat-hdr{background:var(--dk);border-top:4px solid var(--o);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;flex-shrink:0}
+.chat-hdr .left{display:flex;align-items:center;gap:12px}
+.back{background:none;border:none;color:#A8B0B8;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.chat-hdr .meta .sc-name{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--o);text-transform:uppercase}
+.chat-hdr .meta .pr-info{font-size:12px;color:#A8B0B8;margin-top:2px}
+.end-btn{background:var(--o);border:none;color:var(--w);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.end-btn:disabled{background:rgba(255,255,255,.05);color:#555;cursor:default}
+.messages{flex:1;overflow-y:auto;padding:20px 20px 10px}
+.msg-area{max-width:640px;margin:0 auto}
+.msg-row{display:flex;flex-direction:column;margin-bottom:14px}
+.msg-row.agent{align-items:flex-end}
+.msg-row.prospect{align-items:flex-start}
+.msg-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;padding:0 4px}
+.msg-lbl.p{color:var(--o)}
+.msg-lbl.a{color:var(--g)}
+.bubble{max-width:82%;padding:12px 16px;font-size:14px;line-height:1.6;color:var(--tx)}
+.bubble.p{background:var(--w);border:1px solid var(--bd);border-radius:4px 16px 16px 16px}
+.bubble.a{background:var(--gb);border:1px solid var(--gd);border-radius:16px 4px 16px 16px}
+.typing{display:inline-flex;gap:5px;padding:12px 20px;background:var(--w);border:1px solid var(--bd);border-radius:4px 16px 16px 16px}
+.typing span{width:7px;height:7px;border-radius:50%;background:#C4BDB6;animation:pulse 1.2s ease-in-out infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+.err{margin:10px 0;padding:10px 16px;background:var(--rb);border:1px solid #F5C4C4;border-radius:8px;font-size:13px;color:#8B2020}
+.input-bar{flex-shrink:0;background:var(--w);border-top:1px solid var(--bd);padding:14px 20px}
+.input-inner{max-width:640px;margin:0 auto;display:flex;gap:10px}
+.input-inner input{flex:1;padding:12px 16px;border-radius:10px;border:2px solid var(--bd);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.input-inner input:focus{border-color:var(--o)}
+.send-btn{padding:12px 20px;border-radius:10px;border:none;background:var(--o);color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.send-btn:disabled{background:var(--bd);cursor:default}
+.coach-wrap{min-height:100vh;background:var(--cr)}
+.coach-hdr{background:var(--dk);border-top:4px solid var(--o);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.coach-hdr .info .label{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--o);text-transform:uppercase}
+.coach-hdr .info .title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--w);margin-top:4px}
+.coach-hdr .info .sub{font-size:12px;color:#A8B0B8;margin-top:2px}
+.coach-hdr .btns{display:flex;gap:10px}
+.coach-hdr .btn-retry{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--w);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.coach-hdr .btn-new{background:var(--o);border:none;color:var(--w);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.coach-body{max-width:700px;margin:0 auto;padding:28px 20px}
+.coach-card{background:var(--w);border:1px solid var(--bd);border-radius:12px;padding:28px;font-size:14px;line-height:1.9;color:#4A4A4A;white-space:pre-wrap}
+.transcript{margin-top:24px}
+.transcript .label{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--mid);text-transform:uppercase;margin-bottom:10px}
+.transcript .box{background:var(--w);border:1px solid var(--bd);border-radius:12px;padding:18px;max-height:350px;overflow-y:auto}
+.transcript .line{margin:8px 0;display:flex;gap:10px}
+.transcript .line .who{font-size:10px;font-weight:700;text-transform:uppercase;min-width:56px;padding-top:2px}
+.transcript .line .txt{font-size:13px;color:#4A4A4A;line-height:1.6}
+.loading-box{text-align:center;padding:50px}
+.loading-box p{color:var(--mid);margin-bottom:12px}
+.spinner{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--o);border-radius:50%;margin:0 auto;animation:spin .8s linear infinite}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:500px){.scenarios{grid-template-columns:1fr}.chat-hdr{padding:10px 14px}}
+</style>
+</head><body>
+
+<div id="app"></div>
+
+<script>
+let S = { screen:"home", scenario:null, prospect:null, property:null, session:null, messages:[], turns:0, loading:false, error:null, coaching:null };
+
+const SCENARIOS = [
+  {id:"discovery",icon:"🔍",title:"Needs Discovery",desc:"Uncover priorities before the tour",phase:"Pre-Tour Call"},
+  {id:"objection",icon:"🛡️",title:"Objection Handling",desc:"Handle price, size, and amenity concerns",phase:"During / After Tour"},
+  {id:"presentation",icon:"🏠",title:"Property Presentation",desc:"Walk a prospect through using S.E.E.",phase:"Tour In Progress"},
+  {id:"closing",icon:"🎯",title:"Closing Techniques",desc:"Convert interest into applications",phase:"Post-Tour"}
+];
+
+function render() {
+  const el = document.getElementById("app");
+  if (S.screen === "home") renderHome(el);
+  else if (S.screen === "chat") renderChat(el);
+  else if (S.screen === "coaching") renderCoaching(el);
+}
+
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>"); }
+
+function renderHome(el) {
+  el.innerHTML = `
+    <div class="hdr">
+      <div class="badge">🌲 Arboreal Leasing</div>
+      <h1>Sales Training <span>Simulator</span></h1>
+      <p>Practice with AI prospects who have real needs, real objections, and real property concerns. Get scored on your technique.</p>
+    </div>
+    <div class="wrap">
+      <div class="scenarios">${SCENARIOS.map((s,i) => `
+        <div class="sc" onclick="startScenario('${s.id}')">
+          <div class="icon">${s.icon}</div>
+          <div class="ttl">${s.title}</div>
+          <div class="ph">${s.phase}</div>
+          <div class="ds">${s.desc}</div>
+        </div>`).join("")}
+      </div>
+      <div class="info"><b>Every session is unique.</b> The bot randomly selects from 15 prospect profiles and 9 real Arboreal properties. Personality, needs, and reactions change every time.</div>
+    </div>`;
+}
+
+function renderChat(el) {
+  const name = S.prospect ? S.prospect.name : "Prospect";
+  const agentTurns = S.messages.filter(m => m.role === "agent").length;
+  el.innerHTML = `
+    <div class="chat-wrap">
+      <div class="chat-hdr">
+        <div class="left">
+          <button class="back" onclick="goHome()">← Back</button>
+          <div class="meta">
+            <div class="sc-name">${S.scenario.title} — ${S.property ? S.property.name : ""}</div>
+            <div class="pr-info">Turn ${S.turns} · ${name}, ${S.prospect?S.prospect.age:""}, ${S.prospect?S.prospect.job:""}</div>
+          </div>
+        </div>
+        <button class="end-btn" ${agentTurns < 3 ? "disabled" : ""} onclick="endSession()">End & Get Coaching</button>
+      </div>
+      <div class="messages" id="msgBox">
+        <div class="msg-area">
+          ${S.messages.map(m => `
+            <div class="msg-row ${m.role}">
+              <div class="msg-lbl ${m.role==='agent'?'a':'p'}">${m.role==='agent'?'You':name}</div>
+              <div class="bubble ${m.role==='agent'?'a':'p'}">${esc(m.text)}</div>
+            </div>`).join("")}
+          ${S.loading ? `<div class="msg-row prospect"><div class="typing"><span></span><span></span><span></span></div></div>` : ""}
+          ${S.error ? `<div class="err">${esc(S.error)} <a href="#" onclick="S.error=null;render();return false" style="color:#8B2020;margin-left:8px">dismiss</a></div>` : ""}
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-inner">
+          <input id="msgIn" type="text" placeholder="Type your response as the leasing agent..." ${S.loading?"disabled":""} onkeydown="if(event.key==='Enter')sendMsg()">
+          <button class="send-btn" onclick="sendMsg()" ${S.loading?"disabled":""}>Send</button>
+        </div>
+      </div>
+    </div>`;
+  const box = document.getElementById("msgBox");
+  if (box) box.scrollTop = box.scrollHeight;
+  const inp = document.getElementById("msgIn");
+  if (inp && !S.loading) setTimeout(() => inp.focus(), 50);
+}
+
+function renderCoaching(el) {
+  const name = S.prospect ? S.prospect.name : "Prospect";
+  el.innerHTML = `
+    <div class="coach-wrap">
+      <div class="coach-hdr">
+        <div class="info">
+          <div class="label">Coaching Report</div>
+          <div class="title">${S.scenario?S.scenario.title:""} — ${S.property?S.property.name:""}</div>
+          <div class="sub">${name}, ${S.prospect?S.prospect.age:""}, ${S.prospect?S.prospect.job:""}</div>
+        </div>
+        <div class="btns">
+          <button class="btn-retry" onclick="startScenario('${S.scenario?S.scenario.id:'discovery'}')">Try Again</button>
+          <button class="btn-new" onclick="goHome()">New Scenario</button>
+        </div>
+      </div>
+      <div class="coach-body">
+        ${S.loading ? `<div class="loading-box"><p>Analyzing your conversation...</p><div class="spinner"></div></div>` :
+          `<div class="coach-card">${esc(S.coaching)}</div>`}
+        <div class="transcript">
+          <div class="label">Transcript (${S.messages.length} messages)</div>
+          <div class="box">
+            ${S.messages.map(m => `
+              <div class="line">
+                <div class="who" style="color:${m.role==='agent'?'var(--g)':'var(--o)'}">${m.role==='agent'?'You':name}</div>
+                <div class="txt">${esc(m.text)}</div>
+              </div>`).join("")}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function goHome() {
+  S = { screen:"home", scenario:null, prospect:null, property:null, session:null, messages:[], turns:0, loading:false, error:null, coaching:null };
+  render();
+}
+
+async function startScenario(id) {
+  const sc = SCENARIOS.find(s => s.id === id);
+  S.scenario = sc;
+  S.loading = true;
+  S.screen = "chat";
+  S.messages = [];
+  S.turns = 0;
+  S.error = null;
+  S.coaching = null;
+  render();
+
+  try {
+    const res = await fetch("/api/start", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({scenario: id})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    S.prospect = data.prospect;
+    S.property = data.property;
+    S.session = data.session;
+    S.messages = [{role:"prospect", text:data.opener}];
+  } catch(e) {
+    S.error = "Failed to start: " + e.message;
+  }
+  S.loading = false;
+  render();
+}
+
+async function sendMsg() {
+  const inp = document.getElementById("msgIn");
+  if (!inp || !inp.value.trim() || S.loading) return;
+  const txt = inp.value.trim();
+
+  S.messages.push({role:"agent", text:txt});
+  S.turns++;
+  S.loading = true;
+  S.error = null;
+  render();
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        session: S.session,
+        message: txt,
+        turn: S.turns
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    S.messages.push({role:"prospect", text:data.reply});
+    S.session = data.session;
+  } catch(e) {
+    S.error = "Error: " + e.message;
+  }
+  S.loading = false;
+  render();
+}
+
+async function endSession() {
+  S.screen = "coaching";
+  S.loading = true;
+  S.error = null;
+  render();
+
+  const transcript = S.messages.map(m => (m.role==="agent"?"AGENT":"PROSPECT")+": "+m.text).join("\n\n");
+  const prospectInfo = S.prospect ? `${S.prospect.name}, ${S.prospect.age}, ${S.prospect.job}, priority: ${S.prospect.priority}, budget: ${S.prospect.budget}` : "";
+
+  try {
+    const res = await fetch("/api/coach", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        transcript: transcript,
+        scenario: S.scenario ? S.scenario.title : "",
+        property: S.property ? S.property.name : "",
+        prospect_info: prospectInfo
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    S.coaching = data.coaching;
+  } catch(e) {
+    S.coaching = "Unable to generate coaching: " + e.message;
+  }
+  S.loading = false;
+  render();
+}
+
+render();
+</script>
+</body></html>
